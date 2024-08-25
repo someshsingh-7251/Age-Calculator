@@ -20,8 +20,12 @@ JavaScript: For handling the age calculation logic and dynamic interactions.
 
 INSTALLATION
 To run the age calculator locally, follow these steps:
-1. Clone the repository: git clone https://github.com/someshsingh-7251/age-calculator.git
-2. Navigate to the project directory: cd age-calculator
+1. Clone the repository:
+  
+       git clone https://github.com/someshsingh-7251/age-calculator.git
+2. Navigate to the project directory:
+  
+       cd age-calculator
 3. Open index.html in your browser to use the age calculator.
 
 USAGE
