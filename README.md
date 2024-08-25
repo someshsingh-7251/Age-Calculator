@@ -1,4 +1,4 @@
-                                             Age Calculator
+                         Age Calculator
 
 A simple and user-friendly age calculator that allows users to determine their age in years, months, and days based on their date of birth. This project is built using HTML, CSS, and JavaScript.
 
