@@ -1,4 +1,4 @@
-## Age Calculator
+# Age Calculator
 
 A simple and user-friendly age calculator that allows users to determine their age in years, months, and days based on their date of birth. This project is built using HTML, CSS, and JavaScript.
 
@@ -40,5 +40,6 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 1. MDN Web Docs for comprehensive documentation on web technologies.
 2. The developer community for sharing tips and best practices.
 
-## Note: 
-Feel Free to Contact at Instagram: https://www.instagram.com/officialsomeshchinkusingh?igsh=MW1vdTZwbDdmMTZxbw==
+---
+
+*Note: Feel Free to Contact at Instagram: https://www.instagram.com/officialsomeshchinkusingh?igsh=MW1vdTZwbDdmMTZxbw==*
