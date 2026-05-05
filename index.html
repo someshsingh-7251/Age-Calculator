@@ -2,40 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Modern Age Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+:root {
+    --primary: #6366f1;
+    --secondary: #4f46e5;
+    --bg: #0f172a;
+    --card: rgba(255,255,255,0.08);
 }
 
 body {
-    height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
 }
 
+/* Card */
 .container {
-    backdrop-filter: blur(15px);
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    padding: 30px;
     border-radius: 20px;
-    padding: 40px;
+    width: 380px;
     text-align: center;
-    width: 350px;
-    color: white;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    animation: fadeIn 1s ease-in-out;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 h1 {
     margin-bottom: 20px;
 }
 
+/* Input */
 input {
     width: 100%;
     padding: 12px;
@@ -43,16 +47,15 @@ input {
     border: none;
     margin: 15px 0;
     font-size: 16px;
-    outline: none;
 }
 
+/* Button */
 button {
     width: 100%;
     padding: 12px;
     border: none;
     border-radius: 10px;
-    background: #00c6ff;
-    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
     color: white;
     font-size: 16px;
     cursor: pointer;
@@ -63,17 +66,23 @@ button:hover {
     transform: scale(1.05);
 }
 
-.result {
+/* Result Cards */
+.results {
     margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1.5;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
-/* Animation */
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
+.box {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.big {
+    margin-top: 15px;
+    font-size: 14px;
 }
 </style>
 </head>
@@ -82,49 +91,86 @@ button:hover {
 
 <div class="container">
     <h1>🎂 Age Calculator</h1>
-    
-    <input type="date" id="dob">
-    
-    <button onclick="calculateAge()">Calculate Age</button>
 
-    <div class="result" id="result"></div>
+    <input type="date" id="dob">
+
+    <button onclick="handleCalculate()">Calculate</button>
+
+    <div class="results" id="mainResult"></div>
+    <div class="big" id="extraResult"></div>
 </div>
 
 <script>
-function calculateAge() {
-    let dob = document.getElementById("dob").value;
+// ---------- Utility Functions ----------
+function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+}
 
-    if (!dob) {
-        document.getElementById("result").innerHTML = "⚠ Please select your date of birth";
+function validateDOB(dob) {
+    if (!dob) return "Please select a date";
+    if (new Date(dob) > new Date()) return "Future date not allowed";
+    return null;
+}
+
+// ---------- Core Logic ----------
+function calculateExactAge(birthDate, today) {
+    let y = today.getFullYear() - birthDate.getFullYear();
+    let m = today.getMonth() - birthDate.getMonth();
+    let d = today.getDate() - birthDate.getDate();
+
+    if (d < 0) {
+        m--;
+        d += getDaysInMonth(today.getFullYear(), today.getMonth() - 1);
+    }
+
+    if (m < 0) {
+        y--;
+        m += 12;
+    }
+
+    return { years: y, months: m, days: d };
+}
+
+// ---------- Extra Metrics ----------
+function calculateExtras(birthDate, today) {
+    let diff = today - birthDate;
+
+    let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    let hours = Math.floor(diff / (1000 * 60 * 60));
+    let minutes = Math.floor(diff / (1000 * 60));
+    let seconds = Math.floor(diff / 1000);
+
+    return { days, hours, minutes, seconds };
+}
+
+// ---------- Main Handler ----------
+function handleCalculate() {
+    let dobValue = document.getElementById("dob").value;
+    let error = validateDOB(dobValue);
+
+    if (error) {
+        alert(error);
         return;
     }
 
-    let birthDate = new Date(dob);
+    let birthDate = new Date(dobValue);
     let today = new Date();
 
-    let years = today.getFullYear() - birthDate.getFullYear();
-    let months = today.getMonth() - birthDate.getMonth();
-    let days = today.getDate() - birthDate.getDate();
+    let age = calculateExactAge(birthDate, today);
+    let extra = calculateExtras(birthDate, today);
 
-    if (days < 0) {
-        months--;
-        days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-    }
+    // Render main
+    document.getElementById("mainResult").innerHTML = `
+        <div class="box"><h3>${age.years}</h3><p>Years</p></div>
+        <div class="box"><h3>${age.months}</h3><p>Months</p></div>
+        <div class="box"><h3>${age.days}</h3><p>Days</p></div>
+    `;
 
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
-
-    // Extra: total days lived
-    let totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
-
-    document.getElementById("result").innerHTML = `
-        🎉 <br>
-        <strong>${years}</strong> Years <br>
-        <strong>${months}</strong> Months <br>
-        <strong>${days}</strong> Days <br><br>
-        🧮 Total Days: <strong>${totalDays}</strong>
+    // Render extras
+    document.getElementById("extraResult").innerHTML = `
+        📊 Total Days: <b>${extra.days}</b><br>
+        ⏱ Hours: <b>${extra.hours}</b> | Minutes: <b>${extra.minutes}</b><br>
+        ⌛ Seconds: <b>${extra.seconds}</b>
     `;
 }
 </script>
