@@ -1,76 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Age Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<title>Modern Age Calculator</title>
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
 
-        h2 {
-            margin-bottom: 20px;
-        }
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
 
-        input {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px 0;
-            width: 80%;
-        }
+.container {
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    width: 350px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: fadeIn 1s ease-in-out;
+}
 
-        button {
-            padding: 10px 20px;
-            background: #4facfe;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+h1 {
+    margin-bottom: 20px;
+}
 
-        button:hover {
-            background: #007bff;
-        }
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin: 15px 0;
+    font-size: 16px;
+    outline: none;
+}
 
-        #result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    </style>
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #00c6ff;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>Age Calculator</h2>
+    <h1>🎂 Age Calculator</h1>
     
     <input type="date" id="dob">
-    <br>
+    
     <button onclick="calculateAge()">Calculate Age</button>
 
-    <div id="result"></div>
+    <div class="result" id="result"></div>
 </div>
 
 <script>
 function calculateAge() {
     let dob = document.getElementById("dob").value;
 
-    if (dob === "") {
-        document.getElementById("result").innerHTML = "Please select your date of birth.";
+    if (!dob) {
+        document.getElementById("result").innerHTML = "⚠ Please select your date of birth";
         return;
     }
 
@@ -91,8 +116,16 @@ function calculateAge() {
         months += 12;
     }
 
-    document.getElementById("result").innerHTML =
-        `Your Age is: ${years} Years, ${months} Months, ${days} Days`;
+    // Extra: total days lived
+    let totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+
+    document.getElementById("result").innerHTML = `
+        🎉 <br>
+        <strong>${years}</strong> Years <br>
+        <strong>${months}</strong> Months <br>
+        <strong>${days}</strong> Days <br><br>
+        🧮 Total Days: <strong>${totalDays}</strong>
+    `;
 }
 </script>
 
