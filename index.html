@@ -3,43 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Age Calculator</title>
+<title>Advanced Age Calculator</title>
 
 <style>
 :root {
     --primary: #6366f1;
     --secondary: #4f46e5;
-    --bg: #0f172a;
-    --card: rgba(255,255,255,0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: white;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    color: white;
 }
 
-/* Card */
 .container {
-    background: var(--card);
-    backdrop-filter: blur(12px);
+    width: 380px;
     padding: 30px;
     border-radius: 20px;
-    width: 380px;
-    text-align: center;
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.08);
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    text-align: center;
+    animation: fadeIn 1s ease;
 }
 
 h1 {
     margin-bottom: 20px;
 }
 
-/* Input */
 input {
     width: 100%;
     padding: 12px;
@@ -49,7 +51,6 @@ input {
     font-size: 16px;
 }
 
-/* Button */
 button {
     width: 100%;
     padding: 12px;
@@ -66,7 +67,6 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* Result Cards */
 .results {
     margin-top: 20px;
     display: grid;
@@ -80,9 +80,15 @@ button:hover {
     border-radius: 10px;
 }
 
-.big {
+.extra {
     margin-top: 15px;
     font-size: 14px;
+    line-height: 1.6;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 </style>
 </head>
@@ -93,85 +99,110 @@ button:hover {
     <h1>🎂 Age Calculator</h1>
 
     <input type="date" id="dob">
-
     <button onclick="handleCalculate()">Calculate</button>
 
     <div class="results" id="mainResult"></div>
-    <div class="big" id="extraResult"></div>
+    <div class="extra" id="extraResult"></div>
 </div>
 
 <script>
-// ---------- Utility Functions ----------
-function getDaysInMonth(year, month) {
-    return new Date(year, month + 1, 0).getDate();
+// ---------- Zodiac ----------
+function getZodiac(day, month) {
+    const signs = [
+        ["Capricorn", 19], ["Aquarius", 18], ["Pisces", 20],
+        ["Aries", 19], ["Taurus", 20], ["Gemini", 20],
+        ["Cancer", 22], ["Leo", 22], ["Virgo", 22],
+        ["Libra", 22], ["Scorpio", 21], ["Sagittarius", 21],
+        ["Capricorn", 31]
+    ];
+    return (day > signs[month][1]) ? signs[month+1][0] : signs[month][0];
 }
 
-function validateDOB(dob) {
-    if (!dob) return "Please select a date";
-    if (new Date(dob) > new Date()) return "Future date not allowed";
-    return null;
-}
+// ---------- Next Birthday ----------
+function getNextBirthday(birthDate) {
+    let today = new Date();
+    let next = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
 
-// ---------- Core Logic ----------
-function calculateExactAge(birthDate, today) {
-    let y = today.getFullYear() - birthDate.getFullYear();
-    let m = today.getMonth() - birthDate.getMonth();
-    let d = today.getDate() - birthDate.getDate();
-
-    if (d < 0) {
-        m--;
-        d += getDaysInMonth(today.getFullYear(), today.getMonth() - 1);
+    if (next < today) {
+        next.setFullYear(today.getFullYear() + 1);
     }
 
-    if (m < 0) {
-        y--;
-        m += 12;
-    }
-
-    return { years: y, months: m, days: d };
+    let diff = next - today;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-// ---------- Extra Metrics ----------
-function calculateExtras(birthDate, today) {
-    let diff = today - birthDate;
+// ---------- Live Age ----------
+let interval;
 
-    let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    let hours = Math.floor(diff / (1000 * 60 * 60));
-    let minutes = Math.floor(diff / (1000 * 60));
-    let seconds = Math.floor(diff / 1000);
+function startLiveAge(birthDate) {
+    clearInterval(interval);
 
-    return { days, hours, minutes, seconds };
+    interval = setInterval(() => {
+        let now = new Date();
+        let seconds = Math.floor((now - birthDate) / 1000);
+
+        let liveElement = document.getElementById("live");
+        if (liveElement) {
+            liveElement.innerHTML =
+                `⏳ Live Age: <b>${seconds.toLocaleString()}</b> seconds`;
+        }
+    }, 1000);
 }
 
-// ---------- Main Handler ----------
+// ---------- Main ----------
 function handleCalculate() {
     let dobValue = document.getElementById("dob").value;
-    let error = validateDOB(dobValue);
 
-    if (error) {
-        alert(error);
+    if (!dobValue) {
+        alert("⚠ Please select your date of birth");
         return;
     }
 
     let birthDate = new Date(dobValue);
     let today = new Date();
 
-    let age = calculateExactAge(birthDate, today);
-    let extra = calculateExtras(birthDate, today);
+    if (birthDate > today) {
+        alert("⚠ Future date not allowed");
+        return;
+    }
+
+    // Age calculation
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    let days = today.getDate() - birthDate.getDate();
+
+    if (days < 0) {
+        months--;
+        days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    let totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+
+    // Extras
+    let zodiac = getZodiac(birthDate.getDate(), birthDate.getMonth());
+    let nextBirthday = getNextBirthday(birthDate);
 
     // Render main
     document.getElementById("mainResult").innerHTML = `
-        <div class="box"><h3>${age.years}</h3><p>Years</p></div>
-        <div class="box"><h3>${age.months}</h3><p>Months</p></div>
-        <div class="box"><h3>${age.days}</h3><p>Days</p></div>
+        <div class="box"><h3>${years}</h3><p>Years</p></div>
+        <div class="box"><h3>${months}</h3><p>Months</p></div>
+        <div class="box"><h3>${days}</h3><p>Days</p></div>
     `;
 
-    // Render extras
+    // Render extra
     document.getElementById("extraResult").innerHTML = `
-        📊 Total Days: <b>${extra.days}</b><br>
-        ⏱ Hours: <b>${extra.hours}</b> | Minutes: <b>${extra.minutes}</b><br>
-        ⌛ Seconds: <b>${extra.seconds}</b>
+        📊 Total Days: <b>${totalDays.toLocaleString()}</b><br>
+        🎂 Next Birthday in: <b>${nextBirthday}</b> days<br>
+        ♈ Zodiac Sign: <b>${zodiac}</b><br>
+        <div id="live"></div>
     `;
+
+    startLiveAge(birthDate);
 }
 </script>
 
